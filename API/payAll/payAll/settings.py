@@ -134,6 +134,22 @@ DATABASES = {
     }
 }
 
+# Smtp
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = "geanfranco@fandit.es"
+# EMAIL_HOST_PASSWORD = "anvolgiar23."
+
+# All auth
+ACCOUNT_ADAPTER = 'users.adapters.CustomAllauthAccountAdapter'
+
+# Rest auth
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegistrationSerializer',
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
