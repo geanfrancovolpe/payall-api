@@ -17,6 +17,7 @@ except ImportError:
 
 from rest_framework import serializers
 from requests.exceptions import HTTPError
+from dj_rest_auth.serializers import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 class CustomRegistrationSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=True, write_only=True)
@@ -74,3 +75,12 @@ class CustomRegistrationSerializer(serializers.Serializer):
         self.custom_signup(request, user)
         setup_user_email(request, user, [])
         return user
+
+
+class CustomPasswordResetSerializer(PasswordResetSerializer):
+    def get_email_options(self):
+        return {
+            "email_template_name": "auth/password_reset.html",
+            "html_email_template_name": "auth/password_reset.html"
+        }
+
