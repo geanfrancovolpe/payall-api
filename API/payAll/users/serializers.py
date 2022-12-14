@@ -1,23 +1,12 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpRequest
-# from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import get_user_model
-
-try:
-    from allauth.account import app_settings as allauth_settings
-    from allauth.utils import (email_address_exists,
-                               get_username_max_length)
-    from allauth.account.adapter import get_adapter
-    from allauth.account.utils import setup_user_email
-    from allauth.socialaccount.helpers import complete_social_login
-    from allauth.socialaccount.models import SocialAccount
-    from allauth.socialaccount.providers.base import AuthProcess
-except ImportError:
-    raise ImportError("allauth needs to be added to INSTALLED_APPS.")
+from django.conf import settings
+from allauth.account import app_settings as allauth_settings
+from allauth.utils import email_address_exists
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
 
 from rest_framework import serializers
-from requests.exceptions import HTTPError
-from dj_rest_auth.serializers import PasswordResetSerializer, PasswordResetConfirmSerializer
+from dj_rest_auth.serializers import PasswordResetSerializer 
 
 class CustomRegistrationSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=True, write_only=True)
@@ -79,8 +68,27 @@ class CustomRegistrationSerializer(serializers.Serializer):
 
 class CustomPasswordResetSerializer(PasswordResetSerializer):
     def get_email_options(self):
+        request = self.context.get('request')
+        domain = request.get_host()
         return {
-            "email_template_name": "auth/password_reset.html",
-            "html_email_template_name": "auth/password_reset.html"
+            "email_template_name": "templates/registration/password_reset.html"
         }
+
+    def save(self):
+        if 'allauth' in settings.INSTALLED_APPS:
+            from allauth.account.forms import default_token_generator
+        else:
+            from django.contrib.auth.tokens import default_token_generator
+
+        request = self.context.get('request')
+        # Set some values to trigger the send_email method.
+        opts = {
+            'use_https': request.is_secure(),
+            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL'),
+            'request': request,
+            'token_generator': default_token_generator,
+        }
+
+        opts.update(self.get_email_options())
+        self.reset_form.save(**opts)
 
