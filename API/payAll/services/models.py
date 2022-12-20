@@ -5,7 +5,7 @@ from users.models import CustomUser
 
 class Category(BaseModel):
     name = models.CharField(
-        verbose_name="Nombre del servicio",
+        verbose_name="Nombre",
         blank=False,
         null=False,
         max_length=1000
@@ -37,6 +37,12 @@ class Service(BaseModel):
         related_name="services",
         blank=True,
     )
+    image = models.ImageField(
+        verbose_name="Imagen del servicio",
+        upload_to="service/",
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.name
@@ -49,6 +55,12 @@ class Group(BaseModel):
         blank=False,
         null=False,
         max_length=1000
+    )
+    group_image = models.ImageField(
+        verbose_name="Imagen del grupo",
+        upload_to="group/",
+        null=True,
+        blank=True
     )
     service = models.ForeignKey(
         Service,

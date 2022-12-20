@@ -4,6 +4,7 @@ from allauth.account import app_settings as allauth_settings
 from allauth.utils import email_address_exists
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
+from .models import CustomUser
 
 from rest_framework import serializers
 from dj_rest_auth.serializers import PasswordResetSerializer 
@@ -92,3 +93,15 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
         opts.update(self.get_email_options())
         self.reset_form.save(**opts)
 
+
+class CustomUserSerializer(serializers.ModelSerializer):
+
+    name = serializers.SerializerMethodField()
+
+
+    def get_name(self, obj):
+        return obj.get_full_name()
+
+    class Meta:
+        model = CustomUser
+        fields = ["name", "email"]
