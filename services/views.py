@@ -1,7 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
+from django.db.models import Q
 
-from .models import Service, Group
-from .serializers import GroupSerializer, ServicesSerializer, GroupDetailsSerializer
+from .models import Service, Group, Category
+from .serializers import GroupSerializer, ServicesSerializer, GroupDetailsSerializer, CategoriesSerializer
 
 class GroupViewSet(ModelViewSet):
     queryset = Group.objects.all()
@@ -20,3 +21,14 @@ class GroupViewSet(ModelViewSet):
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServicesSerializer
+
+    def list(self, request, *args, **kwargs):
+        filter_by = request.query_params.get("filter", None)
+        if filter_by:
+            self.queryset = Service.objects.filter(Q(name__icontains=filter_by) | Q(categories__name__icontains=filter_by))
+
+        return super().list(request)
+
+class CatergoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoriesSerializer
