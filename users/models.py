@@ -1,7 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from core.models import BaseModel
 
 # Create your models here.
+
+class ContactList(BaseModel):
+    owner = models.ForeignKey(
+        "users.CustomUser", 
+        verbose_name=u"Responsable", 
+        related_name="rel_owner_set",
+        on_delete=models.CASCADE
+    )
+    contact = models.ForeignKey(
+        "users.CustomUser", 
+        verbose_name=u"Contacto", 
+        related_name="rel_contact_set",
+        on_delete=models.CASCADE
+    )
+
 class CustomUser(AbstractUser):
     phone = models.CharField(
         verbose_name="Número de teléfono",
@@ -15,6 +31,14 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True
     )
+    contacts = models.ManyToManyField(
+        "self",
+        through=ContactList,
+        verbose_name=u"Contactos",
+        blank=True,
+        related_name="user"
+    )
 
     def __str__(self):
         return self.email
+    

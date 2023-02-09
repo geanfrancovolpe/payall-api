@@ -1,15 +1,30 @@
-from rest_framework.viewsets import ModelViewSet
-from django.db.models import Q
 
-from .models import Service, Group, Category
-from .serializers import GroupSerializer, ServicesSerializer, GroupDetailsSerializer, CategoriesSerializer
+from django.db.models import Q
+from django.http import JsonResponse
+
+from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+
+from .models import Service, Group, Category, InvitedUser
+from .serializers import GroupSerializer, ServicesSerializer, GroupDetailsSerializer, CategoriesSerializer, InvitedUserSerializer, \
+    GroupDetailsSerializer, GroupSmallDetailSerializer
 
 class GroupViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated, ]
     queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+    serializer_class = GroupSmallDetailSerializer
 
     def get_serializer_class(self):
-        return GroupDetailsSerializer if self.action == 'retrieve' else GroupSerializer
+        if self.action == 'retrieve':
+            return GroupDetailsSerializer
+        
+        if self.action == 'create':
+            return GroupSerializer
+        
+        return self.serializer_class
 
     def list(self, request, *args, **kwargs):
         retrieve_shared = request.query_params.get("type") == "shared-services"
@@ -17,6 +32,35 @@ class GroupViewSet(ModelViewSet):
                         retrieve_shared else self.queryset.filter(user=request.user))
         return super().list(request)
 
+    @action(detail=False, methods=['post'], url_path="invited-users")
+    def invited_users_add(self, request, *args, **kwargs):
+        request.data["user"] = request.user.id
+        invited_user_serializer = InvitedUserSerializer(data=request.data)
+        if invited_user_serializer.is_valid(raise_exception=True):
+            InvitedUser.objects.update_or_create(
+                email=invited_user_serializer.validated_data["email"],
+                defaults=invited_user_serializer.validated_data
+            )
+            return JsonResponse(invited_user_serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse("Error de invitación", status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'], url_path="invited-users-list/(?P<pk>[^/.]+)")
+    def invited_users_list(self, request, pk=None):
+        group = get_object_or_404(Group, pk=pk)
+        serialized_queryset = InvitedUserSerializer(group.invitations, many=True)
+        return JsonResponse(serialized_queryset.data, status=status.HTTP_200_OK, safe=False) 
+
+    @action(detail=False, methods=['post'], url_path="check-existing")
+    def check_existing_group(self, request):
+        existing_service = Group.check_existing_group(request.user, request.data["service"])
+        if existing_service:
+            return JsonResponse(
+                {"group": GroupDetailsSerializer(existing_service).data, "exists": True}, 
+                status=status.HTTP_200_OK, 
+                safe=False
+            ) 
+        return JsonResponse({"group": None, "exists": False})
+        
     
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.all()

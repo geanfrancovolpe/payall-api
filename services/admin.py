@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, Category, Group
+from .models import Service, Category, Group, InvitedUser
 
 # Register your models here.
 @admin.register(Service)
@@ -27,4 +27,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Category
+        fields = ('__all__')
+
+
+@admin.register(InvitedUser)
+class InvitedUserAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = InvitedUser
         fields = ('__all__')

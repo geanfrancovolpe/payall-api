@@ -1,7 +1,7 @@
 
 from django.urls import path, include
 from dj_rest_auth.views import PasswordResetConfirmView
-# from .views import PasswordResetView
+from .views import ContactListRetrieve
 
 urlpatterns = [
     # path("dj-rest-auth/password/reset/", PasswordResetView.as_view(), name='rest_password_reset'),
@@ -11,5 +11,6 @@ urlpatterns = [
         'dj-rest-auth/password/reset/confirm/<str:uidb64>/<str:token>', 
         PasswordResetConfirmView.as_view(),
         name='password_reset_confirm'
-    )
+    ),
+    path('get-contacts/', ContactListRetrieve.as_view(), name="contact_list_retrieve")
 ]

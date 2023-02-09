@@ -3,7 +3,9 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, get_object_or_404, ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import CustomUserSerializer
 
 # from .serializers import CustomPasswordResetSerializer
 from .models import CustomUser
@@ -26,3 +28,16 @@ from .models import CustomUser
 #             {"detail": u"Password reset e-mail has been sent."},
 #             status=status.HTTP_200_OK
 #         )
+
+class ContactListRetrieve(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = request.user.contacts.all()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+

@@ -14,7 +14,6 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
 
-
     
 class Service(BaseModel):
     name = models.CharField(
@@ -105,5 +104,33 @@ class Group(BaseModel):
         blank=True
     )
 
+    @classmethod
+    def check_existing_group(cls, user, service):
+        return cls.objects.filter(user=user, service=service).last()
+
+
     def __str__(self):
         return self.title
+
+
+class InvitedUser(BaseModel):
+    email = models.EmailField("Email invitado", blank=True)
+    user = models.ForeignKey(
+        CustomUser,
+        related_name=u"invitations",
+        on_delete=models.CASCADE,
+        verbose_name=u"Responsable",
+        null=False,
+        blank=False
+    )
+    group = models.ForeignKey(
+        Group,
+        related_name=u"invitations",
+        on_delete=models.CASCADE,
+        verbose_name=u"Grupo",
+        null=False,
+        blank=False
+    )
+
+    def __str__(self):
+        return self.email

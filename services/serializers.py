@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
-from .models import Service, Category, Group
+from .models import Service, Category, Group, InvitedUser
 
 from files.serializers import MediaFileSerializer
 from users.serializers import CustomUserSerializer
@@ -26,13 +26,17 @@ class ServicesDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class GroupSmallDetailSerializer(serializers.ModelSerializer):
     service = ServicesSerializer(many=False, read_only=True)
     
     class Meta:
         model = Group
         fields = ['title', 'service', 'group_image', 'id']
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = "__all__"
 
 class GroupDetailsSerializer(serializers.ModelSerializer):
     service = ServicesDetailSerializer(many=False, read_only=True)
@@ -43,3 +47,9 @@ class GroupDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+
+
+class InvitedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InvitedUser
+        fields = "__all__"
