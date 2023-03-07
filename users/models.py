@@ -35,8 +35,7 @@ class CustomUser(AbstractUser):
         "self",
         through=ContactList,
         verbose_name=u"Contactos",
-        blank=True,
-        related_name="user"
+        blank=True
     )
 
     def __str__(self):

@@ -11,7 +11,7 @@ from dj_rest_auth.serializers import PasswordResetSerializer
 
 class CustomRegistrationSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=True, write_only=True)
-    last_name = serializers.CharField(required=True, write_only=True)
+    last_name = serializers.CharField(required=False, write_only=True)
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
@@ -102,7 +102,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["name", "email", "profile_picture", "contacts"]
+        fields = ["id", "name", "email", "profile_picture", "contacts"]
 
 class CustomUserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
@@ -113,4 +113,4 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["name", "email", "profile_picture", "contacts"]
+        fields = ["id", "name", "email", "profile_picture", "contacts"]

@@ -38,18 +38,20 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = "__all__"
 
-class GroupDetailsSerializer(serializers.ModelSerializer):
-    service = ServicesDetailSerializer(many=False, read_only=True)
-    files = MediaFileSerializer(many=True, read_only=True)
-    users = CustomUserSerializer(many=True, read_only=True)
-    user = CustomUserSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = Group
-        fields = '__all__'
-
 
 class InvitedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvitedUser
         fields = "__all__"
+
+
+class GroupDetailsSerializer(serializers.ModelSerializer):
+    service = ServicesDetailSerializer(many=False, read_only=True)
+    files = MediaFileSerializer(many=True, read_only=True)
+    users = CustomUserSerializer(many=True, read_only=True)
+    user = CustomUserSerializer(many=False, read_only=True)
+    invitations = InvitedUserSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Group
+        fields = '__all__'

@@ -18,10 +18,10 @@ class GroupViewSet(ModelViewSet):
     serializer_class = GroupSmallDetailSerializer
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == "retrieve":
             return GroupDetailsSerializer
         
-        if self.action == 'create':
+        if self.action in ["create", "update"]:
             return GroupSerializer
         
         return self.serializer_class
@@ -60,6 +60,21 @@ class GroupViewSet(ModelViewSet):
                 safe=False
             ) 
         return JsonResponse({"group": None, "exists": False})
+    
+    @action(detail=True, methods=['post'], url_path="toggle-user")
+    def toggle_user(self, request, pk):
+        instance = self.get_object()
+        user = request.data.get("user", None)
+        if instance.users.filter(id=user).exists():
+            instance.users.remove(user)
+        else:
+            instance.users.add(user)
+
+        return JsonResponse(
+            "Ok", 
+            status=status.HTTP_200_OK, 
+            safe=False
+        ) 
         
     
 class ServiceViewSet(ModelViewSet):
